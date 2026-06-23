@@ -1,12 +1,10 @@
 #!/usr/bin/env node
 import { getDefaultProvider, getDefaultModel, getActiveProviders, getProviderInfo, initWizard } from '../src/config.js';
-import { callProvider } from '../src/providers.js';
+import { streamResponse } from '../src/providers.js';
 
 function printUsage() {
   console.log(`
-  ╔══════════════════════════════════════════╗
-  ║  ai — AI pipe command for your terminal  ║
-  ╚══════════════════════════════════════════╝
+  ai — AI pipe command for your terminal
 
   USAGE
     $ ai <prompt>                     Ask a question
@@ -32,7 +30,7 @@ function printUsage() {
     GOOGLE_API_KEY        Google Gemini models
     OPENROUTER_API_KEY    OpenRouter (multi-provider)
 
-  PRO TIP: Pipe everything through AI:
+  PRO TIP: Pipe everything through AI
     curl api.example.com | ai "summarize as JSON"
 `);
 }
@@ -50,7 +48,7 @@ function readStdin() {
   });
 }
 
-export async function run(args) {
+async function run(args) {
   if (args.length === 0 || args.includes('--help') || args.includes('-h')) {
     printUsage();
     return;
@@ -66,7 +64,7 @@ export async function run(args) {
     console.log('\n  Active providers:\n');
     for (const p of active) {
       const info = getProviderInfo(p);
-      console.log(`  \u2713 ${info.name} \u2014 ${info.defaultModel}`);
+      console.log(`  ✓ ${info.name} \u2014 ${info.defaultModel}`);
     }
     if (active.length === 0) {
       console.log('  No providers configured. Set an API key or run: ai init\n');
@@ -82,25 +80,20 @@ export async function run(args) {
 
   for (let i = 0; i < args.length; i++) {
     const arg = args[i];
-    if (arg === '--provider' || arg === '-p') {
-      provider = args[++i];
-    } else if (arg === '--model' || arg === '-m') {
-      model = args[++i];
-    } else if (arg === '--system' || arg === '-s') {
-      system = args[++i];
-    } else {
-      positional.push(arg);
-    }
+    if (arg === '--provider' || arg === '-p') { provider = args[++i]; }
+    else if (arg === '--model' || arg === '-m') { model = args[++i]; }
+    else if (arg === '--system' || arg === '-s') { system = args[++i]; }
+    else { positional.push(arg); }
   }
 
   let prompt = positional.join(' ');
-  if (!prompt || prompt.trim() === '') {
-    prompt = 'process this input';
-  }
+  if (!prompt || prompt.trim() === '') prompt = '';
 
   const stdinContent = await readStdin();
   if (stdinContent) {
-    prompt = `${stdinContent}\n\n${prompt}`;
+    prompt = prompt
+      ? `${stdinContent}\n\n${prompt}`
+      : `Process this input:\n${stdinContent}`;
   }
 
   if (!provider) {
@@ -108,10 +101,12 @@ export async function run(args) {
     process.exit(1);
   }
 
-  if (!model) {
-    model = getDefaultModel(provider);
-  }
+  if (!model) model = getDefaultModel(provider);
 
-  const response = await callProvider(provider, prompt, model, system);
-  console.log(response);
+  await streamResponse(provider, prompt, model, system);
 }
+
+run(process.argv.slice(2)).catch((err) => {
+  console.error(err.message);
+  process.exit(1);
+});
