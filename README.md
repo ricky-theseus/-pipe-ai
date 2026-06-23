@@ -9,7 +9,7 @@
 
 
 ```bash
-npm install -g pipe-ai
+npm install -g unix-ai
 export OPENAI_API_KEY="sk-..."
 ai "write a python web server"
 ```
@@ -59,7 +59,7 @@ No config. No login. No GUI. Just pipes, models, and results.
 ### One command
 
 ```bash
-npm install -g pipe-ai
+npm install -g unix-ai
 ```
 
 ### Or download
