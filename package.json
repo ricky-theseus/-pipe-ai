@@ -1,0 +1,18 @@
+{
+  "name": "pipe-ai",
+  "version": "0.1.0",
+  "description": "The universal AI pipe command — pipe anything through any AI model from your terminal",
+  "keywords": ["ai", "cli", "pipe", "terminal", "llm", "gpt", "claude", "ollama", "deepseek", "unix"],
+  "homepage": "https://github.com/opencode-ai/pipe-ai#readme",
+  "bugs": { "url": "https://github.com/opencode-ai/pipe-ai/issues" },
+  "license": "MIT",
+  "author": "OpenCode Community",
+  "type": "module",
+  "bin": { "ai": "./bin/ai.js" },
+  "files": ["bin", "src", "README.md", "LICENSE"],
+  "engines": { "node": ">=18" },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/opencode-ai/pipe-ai.git"
+  }
+}
